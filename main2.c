@@ -201,11 +201,11 @@ void main2(Server* s){
                             int *lista;
                             lista = disponibilidadHabitaciones((*r).fecha_ini,(*r).fecha_fin, s);
                             
-                            s->Enviar("\nElige una habitacion disponible:  ");
+                            //s->Enviar("\nElige una habitacion disponible:  ");
                             char buffer1[3];
-                            buffer[2] = '\0';
-                            strncpy(buffer1, s->Recibir(),3);
-                            (*r).id_habitacion = atoi(buffer1);
+                            //buffer[2] = '\0';
+                            //strncpy(buffer1, s->Recibir(),3);
+                            //(*r).id_habitacion = atoi(buffer1);
                             
 
                             while (lista[(*r).id_habitacion] == 0){
@@ -272,7 +272,7 @@ void main2(Server* s){
                     }
                 }
                 else{
-                    s->Enviar("\nDatos incorrectos\nSi quieres salir pulsa 6, sino, pulsa otro boton:  ");
+                    s->Enviar("\neRROR 555!! Datos incorrectos\nSi quieres salir pulsa 6, sino, pulsa otro boton:  ");
                     ve = (s->Recibir())[0];
                 }
             }

@@ -100,3 +100,5 @@
 [2024-05-23 10:36:18] El usuario con DNI 73275435B ha iniciado sesión.
 [2024-05-23 10:36:44] Se ha relizado la reserva 17.
 [2024-05-23 10:46:06] El usuario con DNI 73275435B ha iniciado sesión.
+[2024-05-23 12:17:41] El usuario con DNI 73275435B ha iniciado sesión.
+[2024-05-23 12:23:52] El usuario con DNI 73275435B ha iniciado sesión.
