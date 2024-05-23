@@ -12,7 +12,7 @@ int realizarReserva(Reserva *r){
     sqlite3_open("base_datos.db", &db);
     sqlite3_stmt *stmt;
 
-    char *sql = "SELECT ID_RESERVA_HOTEL FROM RESERVA_HOTEL ORDER BY ID_RESERVA_HOTEL DESC LIMIT 1;";
+    const char *sql = "SELECT ID_RESERVA_HOTEL FROM RESERVA_HOTEL ORDER BY ID_RESERVA_HOTEL DESC LIMIT 1;";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt , NULL);
     if (result != SQLITE_OK) {
 		printf("Error preparing statement (INSERT)\n");
@@ -28,7 +28,7 @@ int realizarReserva(Reserva *r){
 
     sqlite3_stmt *stmt1;
 
-    char *sql1 = "INSERT INTO RESERVA_HOTEL VALUES (?,?,?,?,?,?);";
+    const char *sql1 = "INSERT INTO RESERVA_HOTEL VALUES (?,?,?,?,?,?);";
     int result1 = sqlite3_prepare_v2(db, sql1, -1, &stmt1, NULL);
     if (result1 != SQLITE_OK) {
 		printf("Error preparing statement (INSERT)\n");
@@ -37,12 +37,12 @@ int realizarReserva(Reserva *r){
 	}
 
 
-    char *fechaFormateadainicio = malloc(11);
+    char *fechaFormateadainicio = (char*)malloc(11);
 
     sprintf(fechaFormateadainicio, "%d-%02d-%02d", (*r).fecha_ini.anyo, (*r).fecha_ini.mes, (*r).fecha_ini.dia);
     
 
-    char *fechaFormateadafin = malloc(11);
+    char *fechaFormateadafin = (char*)malloc(11);
 
     sprintf(fechaFormateadafin, "%d-%02d-%02d", (*r).fecha_fin.anyo, (*r).fecha_fin.mes, (*r).fecha_fin.dia);
     sqlite3_bind_int(stmt1, 1, (*r).id_reserva_hotel);
@@ -69,7 +69,7 @@ int anularReserva(char *c){
     sqlite3_open("base_datos.db", &db);
     sqlite3_stmt *stmt;
 
-    char *sql = "DELETE FROM RESERVA_HOTEL WHERE  DNI LIKE ?;";
+    const char *sql = "DELETE FROM RESERVA_HOTEL WHERE  DNI LIKE ?;";
 
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
@@ -85,5 +85,6 @@ int anularReserva(char *c){
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
+    return 0;
 }
 

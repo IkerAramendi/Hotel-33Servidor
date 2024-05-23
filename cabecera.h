@@ -1,6 +1,26 @@
 #ifndef cabecera_h
 #define cabecera_h
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+namespace containers{
+  class Server {
+  public:
+      int server, client;
+      struct sockaddr_in serverAddr, clientAddr;
+      char buffer[1024];
+      Server();
+      char* Recibir();
+      void Enviar(const char *mensaje);
+      void CerrarSocket();
+
+
+  };
+}
+extern "C"{
 typedef struct{
     int dia;
     int mes;
@@ -56,9 +76,9 @@ void crearBD();
 
 int registrarCliente(Cliente *cliente);
 
-int comprobarCliente();
+int comprobarCliente(char *c);
 
-int realizarReserva();
+int realizarReserva(Reserva *r);
 
 int registrarUsuario(Usuario *u);
 
@@ -68,53 +88,57 @@ int anularReserva(char *c);
 
 int calcularOcupacion();
 
-void excepcionNumeros(char *ve);
+void excepcionNumeros(char *ve, containers::Server *s);
 
-void excepcionDNI(char *str);
+void excepcionDNI(char *str, containers::Server *s);
 
-void excepcionNombre(char *str);
+void excepcionNombre(char *str, containers::Server *s);
 
-void excepcionApellido(char *str);
+void excepcionApellido(char *str, containers::Server *s);
 
-void excepcionContrasena(char *str);
+void excepcionContrasena(char *str, containers::Server *s);
 
 int crearTipoHabitaciones();
 
 void crearHabitaciones();
 
-void mostrarHabitaciones();
+void mostrarHabitaciones(containers::Server *s);
 
-int* disponibilidadHabitaciones(Fecha fechaini, Fecha fechafin);
+int* disponibilidadHabitaciones(Fecha fechaini, Fecha fechafin, containers::Server *s);
 
-void excepcionAnyoReserva(int *anyo);
+void excepcionAnyoReserva(int *anyo, containers::Server *s);
 
-void excepcionMesReserva(int *mes);
+void excepcionMesReserva(int *mes, containers::Server *s);
 
-void excepcionDiaReserva(int *mes , int *dia);
+void excepcionDiaReserva(int *mes , int *dia, containers::Server *s);
 
-void excepcionNumeroPersonas(int *num);
+void excepcionNumeroPersonas(int *num, containers::Server *s);
 
-void excepcionNumeroTelefono(char *str);
+void excepcionNumeroTelefono(char *str, containers::Server *s);
 
-void excepcionNumeroTarjeta(char *str);
+void excepcionNumeroTarjeta(char *str, containers::Server *s);
 
 void logInicioSesion(char *message);
 
-void excepcionAnyoNacimiento(int *anyo);
+void excepcionAnyoNacimiento(int *anyo, containers::Server *s);
 
-int informacionUsuario(char *c);
+int informacionUsuario(char *c, containers::Server *s);
 
 void mostrarReservasCliente(char *dni_cliente);
 
 int existeBD();
 
+void main2(containers::Server *s);
+
+
+}
+
+//#ifdef __cplusplus
 
 
 
-
-
-
-
+//#endif
+//}
 
 
 #endif

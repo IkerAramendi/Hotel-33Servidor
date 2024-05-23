@@ -3,6 +3,7 @@
 #include"cabecera.h"
 #include<string.h>
 
+using namespace containers;
 
 int registrarUsuario(Usuario *u){
     sqlite3* db;
@@ -10,7 +11,7 @@ int registrarUsuario(Usuario *u){
 
     sqlite3_stmt *stmt;
 
-    char *sql = "INSERT INTO USUARIO VALUES (?,?,?,?);";
+    const char *sql = "INSERT INTO USUARIO VALUES (?,?,?,?);";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
 		printf("Error en la preparación del statement (INSERT)\n");
@@ -46,7 +47,7 @@ int loggear(Usuario *usuario){
     sqlite3_open("base_datos.db", &db);
     sqlite3_stmt *stmt;
 
-    char *sql = "SELECT * FROM USUARIO WHERE contrasena LIKE ? AND DNI LIKE ?;";
+    const char *sql = "SELECT * FROM USUARIO WHERE contrasena LIKE ? AND DNI LIKE ?;";
 
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
@@ -101,12 +102,12 @@ int loggear(Usuario *usuario){
 
 
 
-int informacionUsuario(char *c) {
+int informacionUsuario(char *c, Server *s) {
     sqlite3 *db;
     sqlite3_open("base_datos.db", &db);
 
     sqlite3_stmt *stmt;
-    char *sql = "SELECT * FROM USUARIO WHERE DNI LIKE ?;";
+    const char *sql = "SELECT * FROM USUARIO WHERE DNI LIKE ?;";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
         printf("Error preparando la sentencia (SELECT)\n");
@@ -122,12 +123,17 @@ int informacionUsuario(char *c) {
         const unsigned char *dni = sqlite3_column_text(stmt, 0);
         const unsigned char *nombre = sqlite3_column_text(stmt, 1);
         const unsigned char *apellido = sqlite3_column_text(stmt, 2);
-        printf("\nInformacion del usuario.");
-        printf("\nDNI: %s", dni);
-        printf("\nNombre: %s", nombre);
-        printf("\nApellido: %s\n", apellido);
+        char salida[100] = "\nInformacion del usuario.";
+        
+        strcat(salida, "\nDNI: ");
+        strcat(salida, (char*)dni);
+        strcat(salida, "\nNombre: ");
+        strcat(salida, (char*)nombre);
+        strcat(salida, "\nApellido: ");
+        strcat(salida, (char*)apellido);
+        s->Enviar(salida);
     } else {
-        printf("\nEste usuario no existe.\n");
+        s->Enviar("\nEste usuario no existe.\n");
     }
 
     sqlite3_finalize(stmt);

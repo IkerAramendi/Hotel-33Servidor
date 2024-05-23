@@ -3,20 +3,19 @@
 #include<ctype.h>
 #include <string.h>
 #include <time.h>
+#include <cstdlib>
 
+using namespace containers;
 
-
-
-void excepcionNumeros(char *ve){
+void excepcionNumeros(char *ve, Server *s){
     while(isdigit(*ve) == 0){
-        printf("\nError!Introduce un numero:");
-        *ve = getchar();
-        fflush(stdin);
+        s->Enviar("\nError! Introduce un numero:");
+        *ve = (s->Recibir())[0];
     }
 }
 
 
-void excepcionDNI(char *str) {
+void excepcionDNI(char *str, Server *s) {
     int valido = 0;
     while (valido != 1) {
         if(strlen(str) == 9) {
@@ -33,21 +32,23 @@ void excepcionDNI(char *str) {
                 valido = 1;
 
             } else{
-                printf("Formato incorrecto. Introduzcalo de nuevo:");
-                scanf("%s", str);        
-                fflush(stdin);
+                s->Enviar("Formato incorrecto.1 Introduzcalo de nuevo:  ");
+                char *buffer = s->Recibir();
+                strncpy(str, buffer, 10);     
+                       
+                
                 }
             
         } else {
-            printf("Formato incorrecto. Introduzcalo de nuevo:");
-            scanf("%s", str);        
-            fflush(stdin);
+            s->Enviar("Formato incorrecto.El DNI tiene 9 caracteres alfanumericos. Introduzcalo de nuevo:  ");
+            char *buffer = s->Recibir();
+            strncpy(str, buffer, 10);
         }
     }
 }
 
 
-void excepcionNombre(char *str){
+void excepcionNombre(char *str, Server *s){
     int valido = 0;
     while(valido != 1){
         str[0] = toupper(str[0]);
@@ -65,9 +66,8 @@ void excepcionNombre(char *str){
 
         if(existeNumero == 0){
             if(strlen(str) < 2 || strlen(str) > 15){
-                printf("El nombre debe contener entre 2 y 15 caracteres. Intentelo de nuevo:");
-                scanf("%s", str);
-                fflush(stdin);  
+                s->Enviar("El nombre debe contener entre 2 y 15 caracteres. Intentelo de nuevo:");
+                strncpy(str, s->Recibir(), 10); 
             }
 
             else{
@@ -76,9 +76,8 @@ void excepcionNombre(char *str){
         }
 
         else{
-            printf("El nombre  no debe contener numeros. Intentelo de nuevo:");
-            scanf("%s", str);
-            fflush(stdin);
+            s->Enviar("El nombre  no debe contener numeros. Intentelo de nuevo:");
+            strncpy(str, s->Recibir(), 10);
         }
     } 
 }
@@ -88,7 +87,7 @@ void excepcionNombre(char *str){
 
 
 
-void excepcionApellido(char *str){
+void excepcionApellido(char *str, Server *s){
     int valido = 0;
     while(valido != 1){
         str[0] = toupper(str[0]);
@@ -106,9 +105,8 @@ void excepcionApellido(char *str){
 
         if(existeNumero == 0){
             if(strlen(str) < 2 || strlen(str) > 15){
-                printf("El apellido debe contener entre 2 y 15 caracteres. Intentelo de nuevo:");
-                scanf("%s", str);
-                fflush(stdin);  
+                s->Enviar("El apellido debe contener entre 2 y 15 caracteres. Intentelo de nuevo:");
+                strncpy(str, s->Recibir(), 16);  
             }
 
             else{
@@ -117,33 +115,30 @@ void excepcionApellido(char *str){
         }
 
         else{
-            printf("El apellido  no debe contener numeros. Intentelo de nuevo:");
-            scanf("%s", str);
-            fflush(stdin);
+            s->Enviar("El apellido  no debe contener numeros. Intentelo de nuevo:");
+            strncpy(str, s->Recibir(), 16);
         }
     } 
 }
 
 
 
-void excepcionContrasena(char *str){
+void excepcionContrasena(char *str, Server *s){
     int valido = 0;
     while (valido != 1){
           if(strlen(str) >= 4 && strlen(str) <= 15){
             valido = 1;
             }
             else{
-                printf("La contrasena debe contener entre 4 y 15 caracteres. Intentelo de nuevo:");
-                scanf("%s", str);
-                fflush(stdin);  
+                s->Enviar("La contrasena debe contener entre 4 y 15 caracteres. Intentelo de nuevo:  ");
+                strncpy(str, s->Recibir(), 16);  
             }
 
 }
-
 }
 
 
-void excepcionAnyoReserva(int *anyo){
+void excepcionAnyoReserva(int *anyo, Server *s){
     time_t tiempo_actual;
     struct tm* tiempo_info;
     time(&tiempo_actual);
@@ -152,25 +147,29 @@ void excepcionAnyoReserva(int *anyo){
     int anyo_actual = tiempo_info->tm_year + 1900;
 
     while (*anyo < anyo_actual || *anyo >= anyo_actual+50){
-        printf("El ano introducido debe ser mayor que %d. Intentelo de nuevo: ", anyo_actual);
-        scanf("%d", anyo);
-        fflush(stdin);
+        s->Enviar("El ano introducido debe ser mayor que 2023. Intentelo de nuevo:  ");
+        char subbuffer[5];
+        subbuffer[4] = '\0';
+        strncpy(subbuffer, s->Recibir(), 4);
+        *anyo = atoi(subbuffer);
     }
 
 }
 
 
 
-void excepcionMesReserva(int *mes){
+void excepcionMesReserva(int *mes, Server *s){
     while(*mes < 1 || *mes > 12){
-         printf("El mes introducido es incorrecto. Intentelo de nuevo: ");
-         scanf("%d", mes);
-         fflush(stdin);
+         s->Enviar("El mes introducido es incorrecto. Intentelo de nuevo:  ");
+         char subbuffer[3];
+         subbuffer[2] = '\0';
+         strncpy(subbuffer, s->Recibir(), 2);
+         *mes = atoi(subbuffer);
     }
 }
 
 
-void excepcionDiaReserva(int *mes , int *dia){
+void excepcionDiaReserva(int *mes , int *dia, Server *s){
     int valido = 0;
     while(valido != 1){
         if(*mes % 2 == 0 && *mes != 2 && *dia <= 31 && *dia >= 1){
@@ -183,9 +182,11 @@ void excepcionDiaReserva(int *mes , int *dia){
             valido = 1;
         }
         else{
-            printf("El dia introducido es incorrecto. Intentelo de nuevo: ");
-            scanf("%d", dia);
-            fflush(stdin);
+            s->Enviar("El dia introducido es incorrecto. Intentelo de nuevo:  ");
+            char subbuffer[3];
+            subbuffer[2] = '\0';
+            strncpy(subbuffer, s->Recibir(), 2);
+            *dia = atoi(subbuffer);
 
         }
 
@@ -194,7 +195,7 @@ void excepcionDiaReserva(int *mes , int *dia){
 
 
 
-void excepcionNumeroPersonas(int *num){
+void excepcionNumeroPersonas(int *num, Server *s){
     while(*num >= 5 || *num <= 0){
         printf("El numero de personas tiene que estar entre 1 y 4. Intentelo de nuevo:");
         scanf("%i", num);
@@ -204,7 +205,7 @@ void excepcionNumeroPersonas(int *num){
 }
 
 
-void excepcionNumeroTelefono(char *str){
+void excepcionNumeroTelefono(char *str, Server *s){
     int numerosCorrectos = 0;
     int valido = 0;
     while(valido != 1){
@@ -219,7 +220,7 @@ void excepcionNumeroTelefono(char *str){
             valido = 1;
         }
         else{
-            printf("El numero de telefono debe tener 9 digitos. Intentelo de nuevo:");
+            s->Enviar("El numero de telefono debe tener 9 digitos. Intentelo de nuevo:");
             scanf("%s", str);
             fflush(stdin);
         }
@@ -229,7 +230,7 @@ void excepcionNumeroTelefono(char *str){
 
 
 
-void excepcionNumeroTarjeta(char *str){
+void excepcionNumeroTarjeta(char *str, Server *s){
     int numerosCorrectos = 0;
     int valido = 0;
     while(valido != 1){
@@ -253,7 +254,7 @@ void excepcionNumeroTarjeta(char *str){
 }
 
 
-void excepcionAnyoNacimiento(int *anyo){
+void excepcionAnyoNacimiento(int *anyo, Server *s){
     time_t tiempo_actual;
     struct tm* tiempo_info;
     time(&tiempo_actual);

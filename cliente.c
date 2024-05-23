@@ -3,6 +3,16 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+#include "cabecera.h"
+#include <iostream>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <cstring>
+#include <ctime>
+#include "cabecera.h"
 
 
 int registrarCliente(Cliente *cliente){
@@ -11,7 +21,7 @@ int registrarCliente(Cliente *cliente){
 
     sqlite3_stmt *stmt;
 
-    char *sql = "INSERT INTO CLIENTE VALUES (?,?,?,?,?,?);";
+    const char *sql = "INSERT INTO CLIENTE VALUES (?,?,?,?,?,?);";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
 		printf("Error en la preparación del statement (INSERT)\n");
@@ -26,7 +36,7 @@ int registrarCliente(Cliente *cliente){
     int anyo = (*cliente).fecha_nac.anyo;
     int mes = (*cliente).fecha_nac.mes;
     int dia = (*cliente).fecha_nac.dia;
-    char *fechaFormateada = malloc(11);
+    char *fechaFormateada = (char*) malloc(11);
 
     sprintf(fechaFormateada, "%d-%02d-%02d", anyo, mes, dia);
     
@@ -58,7 +68,7 @@ int comprobarCliente(char *c){
 
     sqlite3_stmt *stmt;
 
-    char *sql = "SELECT DNI FROM CLIENTE WHERE DNI LIKE ?;";
+    const char *sql = "SELECT DNI FROM CLIENTE WHERE DNI LIKE ?;";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
 		printf("Error preparing statement (SELECT)\n");
@@ -96,7 +106,7 @@ void mostrarReservasCliente(char *dni_cliente) {
     sqlite3_open("base_datos.db", &db);
 
     sqlite3_stmt *stmt;
-    char *sql = "SELECT * FROM RESERVA_HOTEL WHERE DNI LIKE ?;";
+    const char *sql = "SELECT * FROM RESERVA_HOTEL WHERE DNI LIKE ?;";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
         printf("Error preparando la sentencia (SELECT)\n");
