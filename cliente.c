@@ -116,8 +116,11 @@ void mostrarReservasCliente(char *dni_cliente) {
     }
 
     sqlite3_bind_text(stmt, 1, dni_cliente, -1, SQLITE_STATIC);
+    
+    int found = 0;
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
+        found = 1;
         int id_reserva = sqlite3_column_int(stmt, 0);
         const unsigned char *fecha_ini = sqlite3_column_text(stmt, 1);
         const unsigned char *fecha_fin = sqlite3_column_text(stmt, 2);
@@ -131,6 +134,10 @@ void mostrarReservasCliente(char *dni_cliente) {
         printf("\nDNI del cliente: %s", dni);
         printf("\nNúmero de personas: %d", num_personas);
         printf("\nID de la habitación: %d\n", id_habitacion);
+    }
+
+    if(!found){
+        s->Enviar("\nERROR:505!! DNI del cliente no encontrado.\n");
     }
 
     sqlite3_finalize(stmt);

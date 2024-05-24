@@ -45,6 +45,7 @@ void main2(Server* s){
                 int acceso = loggear(usuario);  
 
                 if (acceso == 0){
+                    s->Enviar("\nCODIGO:201\n");
                     char mensaje[100];
                     sprintf(mensaje, "El usuario con DNI %s ha iniciado sesión.", usuario->DNI);
                     logInicioSesion(mensaje);
@@ -71,7 +72,7 @@ void main2(Server* s){
                                 int valor = comprobarCliente((*r).DNI);
                                 
                                 while (valor != 0){
-                                    s->Enviar("El DNI no esta en la base de datos introduzcala de nuevo:  ");
+                                    s->Enviar("\n ERROR:503!! DNI no econtrado introduzcalo de nuevo:  \n");
                                     strncpy((*r).DNI, s->Recibir(), 10); 
                                     excepcionDNI((*r).DNI, s);
                                     valor = comprobarCliente((*r).DNI);
@@ -81,7 +82,7 @@ void main2(Server* s){
                             else{
                                 Cliente *c =  (Cliente*) malloc(sizeof(Cliente));
                                 if (c == NULL) {
-                                    printf("Error: No se pudo asignar memoria para el cliente.\n  ");
+                                    s->Enviar("\nERROR:507!! Error registrando cliente.\n");
                                     exit(1);
                                     }
                                 s->Enviar("\nIndique su DNI: ");
@@ -128,6 +129,7 @@ void main2(Server* s){
                                 excepcionDiaReserva(&(*c).fecha_nac.mes, &(*c).fecha_nac.dia, s);                                
 
                                 registrarCliente(c);
+                                s->Enviar("\nCODIGO:208\n");
 
                             }
                             int correcto = 0;
@@ -218,6 +220,7 @@ void main2(Server* s){
                             }
 
                             realizarReserva(r);
+                            s->Enviar("\nCODIGO:203\n");
                             char mensaje[100];
                             sprintf(mensaje, "Se ha relizado la reserva %i.", (*r).id_reserva_hotel);
                             logInicioSesion(mensaje);
@@ -237,7 +240,7 @@ void main2(Server* s){
                             strncpy((*c).DNI, s->Recibir(), 10);  
                             excepcionDNI((*c).DNI, s);
                             anularReserva((*c).DNI);
-                            
+                            s->Enviar("\nCODIGO:204\n");
                             char mensaje[100];
                             sprintf(mensaje, "Se han anulado todas las reservas de %s.", (*c).DNI);
                             logInicioSesion(mensaje);
@@ -251,12 +254,16 @@ void main2(Server* s){
                             strncpy((*c).DNI, s->Recibir(), 10);  
                             excepcionDNI((*c).DNI, s);
                             mostrarReservasCliente((*c).DNI);
+                            s->Enviar("\nCODIGO:205\n");
                             free(c);
                             c = NULL;
 
                         }
                         else if (ve == '4'){
                             mostrarHabitaciones(s);
+                            s->Enviar("\nCODIGO:207\n");
+
+                            
                         }
                         else if (ve == '5'){
                             Usuario *u =  (Usuario*) malloc(sizeof(Usuario));
@@ -264,6 +271,8 @@ void main2(Server* s){
                             strncpy((*u).DNI, s->Recibir(), 10);  
                             excepcionDNI((*u).DNI, s);  
                             informacionUsuario((*u).DNI, s);
+                            s->Enviar("\nCODIGO:206\n");
+
                         }
                         else if (ve =='6'){
                             free(usuario);
@@ -272,7 +281,7 @@ void main2(Server* s){
                     }
                 }
                 else{
-                    s->Enviar("\neRROR 555!! Datos incorrectos\nSi quieres salir pulsa 6, sino, pulsa otro boton:  ");
+                    s->Enviar("\nERROR:501!! Datos incorrectos\nSi quieres salir pulsa 6, sino, pulsa otro boton:  ");
                     ve = (s->Recibir())[0];
                 }
             }
@@ -301,6 +310,7 @@ void main2(Server* s){
 
             registrarUsuario(usuario);
             
+            s->Enviar("\nCODIGO:202\n");
             char mensaje[100];
             sprintf(mensaje, "El usuario con DNI %s se ha registrado.", (*usuario).DNI);
             logInicioSesion(mensaje);

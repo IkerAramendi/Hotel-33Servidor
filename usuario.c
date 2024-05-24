@@ -33,6 +33,7 @@ int registrarUsuario(Usuario *u){
     result = sqlite3_step(stmt);
     if (result != SQLITE_DONE) {
         fprintf(stderr, "Error al ejecutar el statement: %s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:502!!\n");
         return result;
     }
     sqlite3_finalize(stmt);
@@ -133,7 +134,7 @@ int informacionUsuario(char *c, Server *s) {
         strcat(salida, (char*)apellido);
         s->Enviar(salida);
     } else {
-        s->Enviar("\nEste usuario no existe.\n");
+        s->Enviar("\nERROR:506!! DNI del usuario no encontrado.\n");
     }
 
     sqlite3_finalize(stmt);

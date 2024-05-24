@@ -32,7 +32,7 @@ void excepcionDNI(char *str, Server *s) {
                 valido = 1;
 
             } else{
-                s->Enviar("Formato incorrecto.1 Introduzcalo de nuevo:  ");
+                s->Enviar("Formato incorrecto. Introduzcalo de nuevo:  ");
                 char *buffer = s->Recibir();
                 strncpy(str, buffer, 10);     
                        

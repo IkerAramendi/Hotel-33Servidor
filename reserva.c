@@ -81,6 +81,13 @@ int anularReserva(char *c){
 
     
     result = sqlite3_step(stmt);
+      
+    if (result == SQLITE_DONE && sqlite3_changes(db) == 0) {
+        s->Enviar("\nERROR:504!! DNI no encontrado.\n");
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return 1; 
+    }
     
 
     sqlite3_finalize(stmt);
