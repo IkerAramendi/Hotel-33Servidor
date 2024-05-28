@@ -149,7 +149,6 @@ void excepcionAnyoReserva(int *anyo, Server *s){
     while (*anyo < anyo_actual || *anyo >= anyo_actual+50){
         s->Enviar("El ano introducido debe ser mayor que 2023. Intentelo de nuevo:  ");
         char subbuffer[5];
-        subbuffer[4] = '\0';
         strncpy(subbuffer, s->Recibir(), 4);
         *anyo = atoi(subbuffer);
     }
@@ -162,7 +161,6 @@ void excepcionMesReserva(int *mes, Server *s){
     while(*mes < 1 || *mes > 12){
          s->Enviar("El mes introducido es incorrecto. Intentelo de nuevo:  ");
          char subbuffer[3];
-         subbuffer[2] = '\0';
          strncpy(subbuffer, s->Recibir(), 2);
          *mes = atoi(subbuffer);
     }
@@ -184,7 +182,6 @@ void excepcionDiaReserva(int *mes , int *dia, Server *s){
         else{
             s->Enviar("El dia introducido es incorrecto. Intentelo de nuevo:  ");
             char subbuffer[3];
-            subbuffer[2] = '\0';
             strncpy(subbuffer, s->Recibir(), 2);
             *dia = atoi(subbuffer);
 
@@ -196,10 +193,12 @@ void excepcionDiaReserva(int *mes , int *dia, Server *s){
 
 
 void excepcionNumeroPersonas(int *num, Server *s){
-    while(*num >= 5 || *num <= 0){
-        printf("El numero de personas tiene que estar entre 1 y 4. Intentelo de nuevo:");
-        scanf("%i", num);
-        fflush(stdin);
+    while(*num >= 5 || *num <= 0){    
+        s->Enviar("El numero de personas tiene que estar entre 1 y 4. Intentelo de nuevo:");
+        
+        char subbuffer[2];
+        strncpy(subbuffer, s->Recibir(), 1);
+        *num = atoi(subbuffer);
     }
 
 }
@@ -221,8 +220,7 @@ void excepcionNumeroTelefono(char *str, Server *s){
         }
         else{
             s->Enviar("El numero de telefono debe tener 9 digitos. Intentelo de nuevo:");
-            scanf("%s", str);
-            fflush(stdin);
+            strncpy(str,s->Recibir(),10);
         }
     }
 
@@ -245,9 +243,8 @@ void excepcionNumeroTarjeta(char *str, Server *s){
             valido = 1;
         }
         else{
-            printf("El numero de tarjeta debe tener 16 digitos. Intentelo de nuevo:");
-            scanf("%s", str);
-            fflush(stdin);
+            s->Enviar("El numero de tarjeta debe tener 16 digitos. Intentelo de nuevo:");
+            strncpy(str,s->Recibir(),17);
         }
     }
 
@@ -263,9 +260,10 @@ void excepcionAnyoNacimiento(int *anyo, Server *s){
     int anyo_actual = tiempo_info->tm_year + 1900;
 
     while (*anyo < anyo_actual - 120  || *anyo > anyo_actual - 18){
-        printf("El ano introducido es incorrecto. Intentelo de nuevo: ");
-        scanf("%d", anyo);
-        fflush(stdin);
+        s->Enviar("El ano introducido es incorrecto. Intentelo de nuevo: ");
+        char buffer1[5];
+        strncpy(buffer1, s->Recibir(),5);
+        *anyo = atoi(buffer1);
     }
 
 }

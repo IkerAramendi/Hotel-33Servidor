@@ -4,7 +4,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <string>
 #include <arpa/inet.h>
+#include <string>
 
 namespace containers{
   class Server {
@@ -19,8 +21,77 @@ namespace containers{
 
 
   };
+  
+  int obtenerNumeroPuertoArchivo(const char *nombreArchivo);
+  
+  
+  class ReservaServicio{
+    private:
+        int idReserva;
+        int idReservaHotel;
+        char DNI[10];
+        int numPersonas;
+        int numDias;
+        double precio;
+
+    public:
+        ReservaServicio();
+        ReservaServicio(int, char*, int);
+        ~ReservaServicio();
+
+        virtual double calcularPrecio() = 0;
+        void setIdReserva(int);
+        void setIdReservaHotel(int);
+        void setDNI(char*);
+        void setNumPersonas(int);
+        void setNumDias(int);
+        void setPrecio(double);
+
+        int getIdReserva();
+        int getIdReservaHotel();
+        char* getDNI();
+        int getNumPersonas();
+        int getNumDias();
+        double getPrecio();
+
+
+};
+
+class ReservaGym : public ReservaServicio {
+    private:
+        char tipo[10];
+        
+    public:
+        ReservaGym();
+        ReservaGym(int, char* , int, char tipo[10]);
+        ~ReservaGym();
+        double calcularPrecio() override;
+        void setTipo(char tipo[10]);
+        char* getTipo();
+
+};
+
+class ReservaComedor : public ReservaServicio{
+    private:
+        int numeroComidasPorDia;
+    public:
+        ReservaComedor();
+        ReservaComedor(int, char* , int, int);
+        ~ReservaComedor();
+        double calcularPrecio() override;
+        void setNumeroComidasPorDia(int);
+        int getNumeroComidasPorDia();
+};
+  
+  
+  
 }
+
 extern "C"{
+
+int realizarReservaComedor(containers::ReservaComedor*, containers::Server *s);
+int realizarReservaGym(containers::ReservaGym*, containers::Server *s);
+
 typedef struct{
     int dia;
     int mes;
@@ -74,17 +145,17 @@ typedef struct{
 
 void crearBD();
 
-int registrarCliente(Cliente *cliente);
+int registrarCliente(Cliente *cliente, containers::Server *s);
 
-int comprobarCliente(char *c);
+int comprobarCliente(char *c, containers::Server *s);
 
-int realizarReserva(Reserva *r);
+int realizarReserva(Reserva *r, containers::Server *s);
 
-int registrarUsuario(Usuario *u);
+int registrarUsuario(Usuario *u, containers::Server *s);
 
-int loggear(Usuario *usuario);
+int loggear(Usuario *usuario, containers::Server *s);
 
-int anularReserva(char *c);
+int anularReserva(char *c, containers::Server *s);
 
 int calcularOcupacion();
 
@@ -98,9 +169,9 @@ void excepcionApellido(char *str, containers::Server *s);
 
 void excepcionContrasena(char *str, containers::Server *s);
 
-int crearTipoHabitaciones();
+int crearTipoHabitaciones(containers::Server *s);
 
-void crearHabitaciones();
+void crearHabitaciones(containers::Server *s);
 
 void mostrarHabitaciones(containers::Server *s);
 
@@ -124,7 +195,7 @@ void excepcionAnyoNacimiento(int *anyo, containers::Server *s);
 
 int informacionUsuario(char *c, containers::Server *s);
 
-void mostrarReservasCliente(char *dni_cliente);
+void mostrarReservasCliente(char *dni_cliente, containers::Server *s);
 
 int existeBD();
 
@@ -133,12 +204,6 @@ void main2(containers::Server *s);
 
 }
 
-//#ifdef __cplusplus
-
-
-
-//#endif
-//}
 
 
 #endif

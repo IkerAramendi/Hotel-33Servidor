@@ -20,7 +20,8 @@ Server::Server() {
 
         serverAddr.sin_addr.s_addr = INADDR_ANY;
         serverAddr.sin_family = AF_INET;
-        serverAddr.sin_port = htons(5555);
+        const char *puerto = "puerto.txt";
+        serverAddr.sin_port = htons(obtenerNumeroPuertoArchivo(puerto));
 
         if (bind(server, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
             perror("Error al hacer bind");

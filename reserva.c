@@ -6,7 +6,9 @@
 #include"cabecera.h"
 #include<stdlib.h>
 
-int realizarReserva(Reserva *r){
+using namespace containers;
+
+int realizarReserva(Reserva *r, Server *s){
 
     sqlite3* db;
     sqlite3_open("base_datos.db", &db);
@@ -15,9 +17,11 @@ int realizarReserva(Reserva *r){
     const char *sql = "SELECT ID_RESERVA_HOTEL FROM RESERVA_HOTEL ORDER BY ID_RESERVA_HOTEL DESC LIMIT 1;";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt , NULL);
     if (result != SQLITE_OK) {
-		printf("Error preparing statement (INSERT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
-	    return 0;
+    		s->Enviar("\nERROR:512\n");
+        s->Recibir();
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+ 	      return 1;
 	}
     result = sqlite3_step(stmt);
     (*r).id_reserva_hotel = sqlite3_column_int(stmt, 0) +1;
@@ -31,13 +35,15 @@ int realizarReserva(Reserva *r){
     const char *sql1 = "INSERT INTO RESERVA_HOTEL VALUES (?,?,?,?,?,?);";
     int result1 = sqlite3_prepare_v2(db, sql1, -1, &stmt1, NULL);
     if (result1 != SQLITE_OK) {
-		printf("Error preparing statement (INSERT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
-	    return 0;
+    		s->Enviar("\nERROR:512\n");
+        s->Recibir();
+        sqlite3_finalize(stmt1);
+        sqlite3_close(db);
+ 	      return 1;
 	}
 
 
-    char *fechaFormateadainicio = (char*)malloc(11);
+     char *fechaFormateadainicio = (char*)malloc(11);
 
     sprintf(fechaFormateadainicio, "%d-%02d-%02d", (*r).fecha_ini.anyo, (*r).fecha_ini.mes, (*r).fecha_ini.dia);
     
@@ -51,19 +57,27 @@ int realizarReserva(Reserva *r){
     sqlite3_bind_text(stmt1, 4, (*r).DNI, strlen((*r).DNI), SQLITE_STATIC);
     sqlite3_bind_int(stmt1, 5, (*r).numPersona);
     sqlite3_bind_int(stmt1, 6, (*r).id_habitacion);
-
     
     result1 = sqlite3_step(stmt1);
     if (result1 != SQLITE_DONE) {
-        fprintf(stderr, "Error al ejecutar el statement: %s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:512\n");
+        s->Recibir();
+        sqlite3_finalize(stmt1);
+        sqlite3_close(db);
         return 1;
     }
     sqlite3_finalize(stmt1);
     sqlite3_close(db);
-    return 2;
+    return 0;
 }
 
-int anularReserva(char *c){
+
+
+
+
+
+
+int anularReserva(char *c, Server *s){
     
     sqlite3* db;
     sqlite3_open("base_datos.db", &db);
@@ -73,9 +87,11 @@ int anularReserva(char *c){
 
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
-		printf("Error preparing statement (SELECT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
-		return 1;
+    		s->Enviar("\nERROR:512\n");
+        s->Recibir();
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+    		return 1;
 	}
     sqlite3_bind_text(stmt, 1,c, -1,SQLITE_STATIC);
 
@@ -83,15 +99,14 @@ int anularReserva(char *c){
     result = sqlite3_step(stmt);
       
     if (result == SQLITE_DONE && sqlite3_changes(db) == 0) {
-        s->Enviar("\nERROR:504!! DNI no encontrado.\n");
+        s->Enviar("\nERROR:504\n");
+        s->Recibir();
         sqlite3_finalize(stmt);
         sqlite3_close(db);
         return 1; 
     }
     
-
     sqlite3_finalize(stmt);
     sqlite3_close(db);
     return 0;
 }
-

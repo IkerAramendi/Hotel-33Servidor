@@ -2,17 +2,6 @@
 #include"cabecera.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstdio>
-#include "cabecera.h"
-#include <iostream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <cstring>
-#include <ctime>
-#include "cabecera.h"
 
 
 
@@ -48,11 +37,7 @@ void crearBD(){
                 "contrasena varchar not null);";
     int x1 = sqlite3_exec(db,sql1,0,0,0);
 
-    const char *sql2 = "Create table if not exists TIPO_COMIDA ("
-                "ID_TIPO_COMIDA integer primary key not null,"
-                "nombre varchar not null,"
-                "descripcion varchar not null);";
-    int x2 = sqlite3_exec(db,sql2,0,0,0);
+    
 
     const char *sql3 = "Create table if not exists TIPO_HABITACION ("
                 "ID_TIPO_HABITACION varchar primary key not null,"
@@ -76,15 +61,20 @@ void crearBD(){
     int x5 = sqlite3_exec(db,sql5,0,0,0);
     
     const char *sql6 = "Create table if not exists RESERVA_GYM ("
-                "ID_RESERVA integer primary key not null,"
-                "DNI varchar not null);";
+                "ID_RESERVA_GYM integer primary key not null,"
+                "DNI varchar not null,"
+                "NUM_PERSONAS INTEGER NOT NULL,"
+                "ID_RESERVA_HOTEL INTEGER  ,"
+                "PRECIO_TOTAL double not null);";
     int x6 = sqlite3_exec(db,sql6,0,0,0);
 
 
     const char *sql7 = "Create table if not exists RESERVA_COMEDOR ("
-                "ID_RESERVA_COMEDOR varchar primary key not null,"
+                "ID_RESERVA_COMEDOR INTEGER primary key not null,"
                 "DNI varchar not null,"
-                "ID_TIPO_COMIDA integer not null);";
+                "ID_RESERVA_HOTEL INTEGER  NOT NULL ,"
+                "PRECIO_TOTAL DOUBLE NOT NULL,"
+                "NUM_COMIDA_POR_DIAS integer not null);";
     int x7 = sqlite3_exec(db,sql7,0,0,0);
 
     sqlite3_close(db);

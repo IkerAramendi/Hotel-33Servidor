@@ -6,7 +6,7 @@
 
 using namespace containers;
 
-int crearTipoHabitaciones(){
+int crearTipoHabitaciones(Server *s){
     sqlite3* db;
     sqlite3_open("base_datos.db", &db);
     sqlite3_stmt *stmt;
@@ -14,11 +14,13 @@ int crearTipoHabitaciones(){
     const char *sql = "INSERT INTO TIPO_HABITACION VALUES (?,?);";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
-		printf("Error en la preparación del statement (INSERT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:515\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return 1;   
 	}
-
-   
 
     char tipoHabitacionA[2] = "A";
     int precioA = 50;
@@ -29,7 +31,11 @@ int crearTipoHabitaciones(){
     result = sqlite3_step(stmt);
 
     if (result != SQLITE_DONE) {
-        fprintf(stderr, "Error al ejecutar el statement: %s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:515\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
         return 1;
     }
     sqlite3_finalize(stmt);
@@ -41,8 +47,12 @@ int crearTipoHabitaciones(){
     const char *sql1 = "INSERT INTO TIPO_HABITACION VALUES (?,?);";
     int result1 = sqlite3_prepare_v2(db, sql1, -1, &stmt1, NULL);
     if (result1 != SQLITE_OK) {
-		printf("Error en la preparación del statement (INSERT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
+		    s->Enviar("\nERROR:515\n");
+        s->Recibir();
+            
+        sqlite3_finalize(stmt1);
+        sqlite3_close(db);
+        return 1;
 	}
 
 
@@ -57,7 +67,11 @@ int crearTipoHabitaciones(){
     result1 = sqlite3_step(stmt1);
 
     if (result1 != SQLITE_DONE) {
-        fprintf(stderr, "Error al ejecutar el statement: %s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:515\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt1);
+        sqlite3_close(db);
         return 1;
     }
     sqlite3_finalize(stmt1);
@@ -69,8 +83,11 @@ int crearTipoHabitaciones(){
     const char *sql2 = "INSERT INTO TIPO_HABITACION VALUES (?,?);";
     int result2 = sqlite3_prepare_v2(db, sql2, -1, &stmt2, NULL);
     if (result2 != SQLITE_OK) {
-		printf("Error en la preparación del statement (INSERT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
+		    s->Enviar("\nERROR:515\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt2);
+        sqlite3_close(db);
 	}
 
     Tipo_habitacion tipoC;
@@ -83,10 +100,13 @@ int crearTipoHabitaciones(){
     result2 = sqlite3_step(stmt2);
 
     if (result2 != SQLITE_DONE) {
-        fprintf(stderr, "Error al ejecutar el statement: %s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:515\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt2);
+        sqlite3_close(db);
         return 1;
     }
-    sqlite3_finalize(stmt);
 
 
     sqlite3_stmt *stmt3;
@@ -94,8 +114,11 @@ int crearTipoHabitaciones(){
     const char *sql3 = "INSERT INTO TIPO_HABITACION VALUES (?,?);";
     int result3 = sqlite3_prepare_v2(db, sql3, -1, &stmt3, NULL);
     if (result3 != SQLITE_OK) {
-		printf("Error en la preparación del statement (INSERT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:515\n");
+        s->Recibir();
+       
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
 	}
     Tipo_habitacion tipoD;
     char tipoHabitacionD[2] = "D";
@@ -107,16 +130,21 @@ int crearTipoHabitaciones(){
     result3 = sqlite3_step(stmt3);
 
     if (result3 != SQLITE_DONE) {
-        fprintf(stderr, "Error al ejecutar el statement: %s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:515\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
         return 1;
     }
-
+    sqlite3_finalize(stmt3);
     sqlite3_close(db);
+    
     return 0;
 }
 
 
-void crearHabitaciones(){
+void crearHabitaciones(Server *s){
 
     sqlite3* db;
     int status = sqlite3_open("base_datos.db", &db);
@@ -131,8 +159,11 @@ void crearHabitaciones(){
         sprintf(insert_sql, "INSERT INTO HABITACION VALUES (%d,'%s','%s',%d);", i,"A","Habitacion",2);
         status = sqlite3_exec(db, insert_sql, 0, 0, &error_message);
         if (status != SQLITE_OK) {
-            fprintf(stderr, "Error al insertar fila: %s\n", error_message);
-            sqlite3_free(error_message);
+            s->Enviar("\nERROR:516\n");
+            s->Recibir();
+            
+            sqlite3_finalize(stmt);
+            sqlite3_close(db);
         }
     }
 
@@ -141,8 +172,11 @@ void crearHabitaciones(){
         sprintf(insert_sql, "INSERT INTO HABITACION VALUES (%d,'%s','%s',%d);", i,"B","Habitacion",3);
         status = sqlite3_exec(db, insert_sql, 0, 0, &error_message);
         if (status != SQLITE_OK) {
-            fprintf(stderr, "Error al insertar fila: %s\n", error_message);
-            sqlite3_free(error_message);
+            s->Enviar("\nERROR:516\n");
+            s->Recibir();
+            
+            sqlite3_finalize(stmt);
+            sqlite3_close(db);
         }
     }
 
@@ -151,8 +185,11 @@ void crearHabitaciones(){
         sprintf(insert_sql, "INSERT INTO HABITACION VALUES (%d,'%s','%s',%d);", i,"C","Habitacion",4);
         status = sqlite3_exec(db, insert_sql, 0, 0, &error_message);
         if (status != SQLITE_OK) {
-            fprintf(stderr, "Error al insertar fila: %s\n", error_message);
-            sqlite3_free(error_message);
+            s->Enviar("\nERROR:516\n");
+            s->Recibir();
+            
+            sqlite3_finalize(stmt);
+            sqlite3_close(db);
         }
 
 
@@ -163,18 +200,21 @@ void crearHabitaciones(){
         sprintf(insert_sql, "INSERT INTO HABITACION VALUES (%d,'%s','%s',%d);", i,"D","Habitacion",4);
         status = sqlite3_exec(db, insert_sql, 0, 0, &error_message);
         if (status != SQLITE_OK) {
-            fprintf(stderr, "Error al insertar fila: %s\n", error_message);
-            sqlite3_free(error_message);
+            s->Enviar("\nERROR:516\n");
+            s->Recibir();
+            
+            sqlite3_finalize(stmt);
+            sqlite3_close(db);
         }
 
 
     }
-
+    sqlite3_finalize(stmt);
     sqlite3_close(db);
 
 
+
 }
-    
 int* disponibilidadHabitaciones(Fecha fechaini, Fecha fechafin, Server *s){
     sqlite3* db;
     int status = sqlite3_open("base_datos.db", &db);
@@ -183,9 +223,12 @@ int* disponibilidadHabitaciones(Fecha fechaini, Fecha fechafin, Server *s){
     const char *sql = "SELECT HABITACION.ID_HABITACION FROM HABITACION INNER JOIN RESERVA_HOTEL ON HABITACION.ID_HABITACION=RESERVA_HOTEL.ID_HABITACION WHERE (RESERVA_HOTEL.FECHA_FIN > ? AND RESERVA_HOTEL.FECHA_INI < ?)   OR (RESERVA_HOTEL.FECHA_INI > ?  AND RESERVA_HOTEL.FECHA_INI < ?);";
     int result = sqlite3_prepare_v2(db,sql,-1,&stmt, NULL);
     if (result != SQLITE_OK){
-        printf("Error preparanado setencia (SELECT)\n");
-        printf("%s\n", sqlite3_errmsg(db));
-        return NULL;
+        s->Enviar("\nERROR:516\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return nullptr;
     }
     char *fechaFormateadaInicio = (char*) malloc(11);
     sprintf(fechaFormateadaInicio, "%d-%02d-%02d", fechaini.anyo, fechaini.mes, fechaini.dia);
@@ -199,9 +242,19 @@ int* disponibilidadHabitaciones(Fecha fechaini, Fecha fechafin, Server *s){
     sqlite3_bind_text(stmt, 4, fechaFormateadaFin, -1, SQLITE_STATIC);
     int lista[16] = {0};
     int valor = 0;
+    int i = 0;
     while((result = sqlite3_step(stmt)) != SQLITE_DONE){
         valor = sqlite3_column_int(stmt, 0);
         lista[valor] = valor;
+        i++;
+    }
+    if ( i == 15){
+        s->Enviar("\nTodas las habitaciones estan ocupadas en las fechas seleccionadas.");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return nullptr;
     }
     int *lista2 = (int*) malloc(16 * sizeof(int));
     for (int i = 0; i < 16; i++) {
@@ -213,9 +266,8 @@ int* disponibilidadHabitaciones(Fecha fechaini, Fecha fechafin, Server *s){
             lista2[j] = 0;
         }        
     }
-    s->Enviar("\nHabitaciones disponibles:   ");
-    s->Recibir();
-    char lis[30];
+   
+    char lis[55];
     for(int k = 0; k<16; k++){
         if (lista2[k]!= 0){
             char numero[16];
@@ -224,7 +276,9 @@ int* disponibilidadHabitaciones(Fecha fechaini, Fecha fechafin, Server *s){
             strcat(lis, "\n");      
         }  
     }
+    strcat(lis, "Elige una habitacion disponible: ");
     s->Enviar(lis);
+    
     sqlite3_finalize(stmt);
     sqlite3_close(db);
     return lista2;

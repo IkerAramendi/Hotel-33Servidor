@@ -5,7 +5,7 @@
 
 using namespace containers;
 
-int registrarUsuario(Usuario *u){
+int registrarUsuario(Usuario *u, Server *s){
     sqlite3* db;
     sqlite3_open("base_datos.db", &db);
 
@@ -14,8 +14,12 @@ int registrarUsuario(Usuario *u){
     const char *sql = "INSERT INTO USUARIO VALUES (?,?,?,?);";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
-		printf("Error en la preparación del statement (INSERT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
+    		s->Enviar("\nERROR:518\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return 1;
 	}
 
 
@@ -29,12 +33,16 @@ int registrarUsuario(Usuario *u){
     sqlite3_bind_text(stmt, 3, apellido, strlen(apellido), SQLITE_STATIC);
     sqlite3_bind_text(stmt, 4, contrasena, strlen(contrasena), SQLITE_STATIC);
 
-
     result = sqlite3_step(stmt);
+    
     if (result != SQLITE_DONE) {
         fprintf(stderr, "Error al ejecutar el statement: %s\n", sqlite3_errmsg(db));
-        s->Enviar("\nERROR:502!!\n");
-        return result;
+        s->Enviar("\nERROR:502\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return 1;
     }
     sqlite3_finalize(stmt);
     sqlite3_close(db);
@@ -42,31 +50,27 @@ int registrarUsuario(Usuario *u){
 }
 
 
-int loggear(Usuario *usuario){
+int loggear(Usuario *usuario, Server *s){
 
     sqlite3* db;
     sqlite3_open("base_datos.db", &db);
     sqlite3_stmt *stmt;
 
     const char *sql = "SELECT * FROM USUARIO WHERE contrasena LIKE ? AND DNI LIKE ?;";
-
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
-		printf("Error preparing statement (SELECT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:517\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
 		return 1;
 	}
 
-	printf("SQL query prepared (SELECT)\n"); // para el logger
 
     sqlite3_bind_text(stmt, 1, (*usuario).contrasena, -1,  SQLITE_STATIC);
-
     sqlite3_bind_text(stmt, 2, (*usuario).DNI, -1, SQLITE_STATIC);
 
-    const char *count1 = NULL;
-    const char *count2 = NULL;
-    const char *count3 = NULL;
-    const char *count4 = NULL;
     int numFilas = 0;
     int singleRow = 0;
     int acceder = 0;
@@ -78,23 +82,18 @@ int loggear(Usuario *usuario){
             return 1;
         }
 
-        count1 = (char *)sqlite3_column_text(stmt, 0);
-        count2 = (char *)sqlite3_column_text(stmt, 1);
-        count3 = (char *)sqlite3_column_text(stmt, 2);
-        count4 = (char *)sqlite3_column_text(stmt, 3);
         
-        if (strcmp((*usuario).contrasena, count4) == 0 && strcmp((*usuario).DNI, count1) == 0) {
+        if (strcmp((*usuario).contrasena, (char *)sqlite3_column_text(stmt, 3)) == 0 && strcmp((*usuario).DNI, (char *)sqlite3_column_text(stmt, 0)) == 0) {
             acceder = 1;
-            strcpy((*usuario).nombre,(char*)count1);
-            strcpy((*usuario).apellido,(char*)count2);        
+            strcpy((*usuario).nombre,(char *)sqlite3_column_text(stmt, 0));
+            strcpy((*usuario).apellido,(char *)sqlite3_column_text(stmt, 1));        
         }
     }
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
     if(singleRow == 0 && acceder == 1){
-        printf("Se ha accedido con exito");
-        return 0;
+        return 0; //accedido con exito
     }
     else{
         return 1;
@@ -111,8 +110,10 @@ int informacionUsuario(char *c, Server *s) {
     const char *sql = "SELECT * FROM USUARIO WHERE DNI LIKE ?;";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
-        printf("Error preparando la sentencia (SELECT)\n");
-        printf("%s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:517\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
         sqlite3_close(db);
         return 1;
     }
@@ -121,20 +122,19 @@ int informacionUsuario(char *c, Server *s) {
 
     result = sqlite3_step(stmt);
     if (result == SQLITE_ROW) {
-        const unsigned char *dni = sqlite3_column_text(stmt, 0);
-        const unsigned char *nombre = sqlite3_column_text(stmt, 1);
-        const unsigned char *apellido = sqlite3_column_text(stmt, 2);
-        char salida[100] = "\nInformacion del usuario.";
+        char salida[150] = "\nInformacion del usuario.";
         
         strcat(salida, "\nDNI: ");
-        strcat(salida, (char*)dni);
+        strcat(salida, (char*)sqlite3_column_text(stmt, 0));
         strcat(salida, "\nNombre: ");
-        strcat(salida, (char*)nombre);
+        strcat(salida, (char*)sqlite3_column_text(stmt, 1));
         strcat(salida, "\nApellido: ");
-        strcat(salida, (char*)apellido);
+        strcat(salida, (char*)sqlite3_column_text(stmt, 2));
         s->Enviar(salida);
+        s->Recibir();
     } else {
         s->Enviar("\nERROR:506!! DNI del usuario no encontrado.\n");
+        s->Recibir();
     }
 
     sqlite3_finalize(stmt);

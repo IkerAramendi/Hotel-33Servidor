@@ -14,8 +14,9 @@
 #include <ctime>
 #include "cabecera.h"
 
+using namespace containers;
 
-int registrarCliente(Cliente *cliente){
+int registrarCliente(Cliente *cliente, Server *s){
     sqlite3* db;
     sqlite3_open("base_datos.db", &db);
 
@@ -24,8 +25,13 @@ int registrarCliente(Cliente *cliente){
     const char *sql = "INSERT INTO CLIENTE VALUES (?,?,?,?,?,?);";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
-		printf("Error en la preparación del statement (INSERT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:511\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        
+        return 1;
 	}
 
     char *nombre = (*cliente).nombre;
@@ -47,11 +53,19 @@ int registrarCliente(Cliente *cliente){
     sqlite3_bind_text(stmt, 5, num_tarjeta, strlen(num_tarjeta), SQLITE_STATIC);
     sqlite3_bind_text(stmt, 6, fechaFormateada, -1, SQLITE_STATIC);
 
-
     result = sqlite3_step(stmt);
     if (result != SQLITE_DONE) {
-        fprintf(stderr, "Error al ejecutar el statement: %s\n", sqlite3_errmsg(db));
-        return result;
+        if (strstr(sqlite3_errmsg(db), "UNIQUE constraint failed: CLIENTE.DNI") != NULL) {
+                s->Enviar("\nERROR:510\n");
+                s->Recibir();
+            }else{
+                s->Enviar("\nERROR:511\n");
+                s->Recibir();
+            }
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        
+        return 1;
     }
 
     sqlite3_finalize(stmt);
@@ -61,7 +75,7 @@ int registrarCliente(Cliente *cliente){
 }
 
 
-int comprobarCliente(char *c){
+int comprobarCliente(char *c, Server *s){
 
     sqlite3* db;
     sqlite3_open("base_datos.db", &db);
@@ -71,9 +85,11 @@ int comprobarCliente(char *c){
     const char *sql = "SELECT DNI FROM CLIENTE WHERE DNI LIKE ?;";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
-		printf("Error preparing statement (SELECT)\n");
-		printf("%s\n", sqlite3_errmsg(db));
-		return 1;
+    		s->Enviar("\nERROR:511\n");
+        s->Recibir();
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+		    return 1;
 	}
 
     
@@ -86,13 +102,13 @@ int comprobarCliente(char *c){
 
     count1 = (char *)sqlite3_column_text(stmt, 0);
     if (strcmp(count1, c) != 0){
-        printf("\nEste cliente no esta registrado");
+        s->Enviar("\nEste cliente no esta registrado");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
         return 1;
     }
-    else{
-        printf("\nExiste cliente");
-    }
-    
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
@@ -101,7 +117,7 @@ int comprobarCliente(char *c){
 }
 
 
-void mostrarReservasCliente(char *dni_cliente) {
+void mostrarReservasCliente(char *dni_cliente, Server *s) {
     sqlite3 *db;
     sqlite3_open("base_datos.db", &db);
 
@@ -109,8 +125,10 @@ void mostrarReservasCliente(char *dni_cliente) {
     const char *sql = "SELECT * FROM RESERVA_HOTEL WHERE DNI LIKE ?;";
     int result = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
     if (result != SQLITE_OK) {
-        printf("Error preparando la sentencia (SELECT)\n");
-        printf("%s\n", sqlite3_errmsg(db));
+        s->Enviar("\nERROR:512\n");
+        s->Recibir();
+        
+        sqlite3_finalize(stmt);
         sqlite3_close(db);
         return;
     }
@@ -121,23 +139,31 @@ void mostrarReservasCliente(char *dni_cliente) {
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         found = 1;
-        int id_reserva = sqlite3_column_int(stmt, 0);
-        const unsigned char *fecha_ini = sqlite3_column_text(stmt, 1);
-        const unsigned char *fecha_fin = sqlite3_column_text(stmt, 2);
-        const unsigned char *dni = sqlite3_column_text(stmt, 3);
-        int num_personas = sqlite3_column_int(stmt, 4);
-        int id_habitacion = sqlite3_column_int(stmt, 5);
 
-        printf("\nReserva #%d:", id_reserva);
-        printf("\nFecha de inicio: %s", fecha_ini);
-        printf("\nFecha de fin: %s", fecha_fin);
-        printf("\nDNI del cliente: %s", dni);
-        printf("\nNúmero de personas: %d", num_personas);
-        printf("\nID de la habitación: %d\n", id_habitacion);
+        char* mensaje = (char*)malloc(500*sizeof(char));
+        strcpy(mensaje, "\nReserva #");
+        sprintf(mensaje,"%s%d",mensaje, sqlite3_column_int(stmt, 0));
+        strcat(mensaje, "\nFecha de inicio: ");
+        strcat(mensaje, (const char *)sqlite3_column_text(stmt, 1));
+        strcat(mensaje, "\nFecha de fin: ");
+        strcat(mensaje, (const char *)sqlite3_column_text(stmt, 2));
+        strcat(mensaje, "\nDNI del cliente: ");
+        strcat(mensaje, (const char *)sqlite3_column_text(stmt, 3));
+        strcat(mensaje, "\nNumero de personas: ");
+        sprintf(mensaje, "%s%d", mensaje, sqlite3_column_int(stmt, 4));
+        strcat(mensaje, "\nID de la habitacion: ");
+        sprintf(mensaje, "%s%d", mensaje, sqlite3_column_int(stmt, 5));
+        strcat(mensaje, "\n");
+        s->Enviar(mensaje);
+        s->Recibir();
     }
 
     if(!found){
         s->Enviar("\nERROR:505!! DNI del cliente no encontrado.\n");
+        s->Recibir();
+    }else{
+        s->Enviar("\nCODIGO:205\n");
+        s->Recibir();
     }
 
     sqlite3_finalize(stmt);
