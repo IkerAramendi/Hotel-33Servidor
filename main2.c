@@ -247,6 +247,8 @@ void main2(Server* s){
                                 sprintf(mensaje, "Se han anulado todas las reservas de %s.", (*c).DNI);
                                 logInicioSesion(mensaje);
                             }
+                            free(c);
+                            c = NULL;
 
                         }
                         else if (ve == '3'){
@@ -280,6 +282,9 @@ void main2(Server* s){
                             informacionUsuario((*u).DNI, s);
                             s->Enviar("\nCODIGO:206\n");
                             s->Recibir();
+
+                            free(u);
+                            u = NULL;
 
                         }
                         else if (ve == '6'){
