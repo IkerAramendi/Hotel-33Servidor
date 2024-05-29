@@ -133,6 +133,8 @@ void main2(Server* s){
                                     s->Enviar("\nCODIGO:208\n");
                                     s->Recibir();
                                     }
+                                free(c);
+                                c = NULL;
 
                             }
                             int correcto = 0;
@@ -217,7 +219,10 @@ void main2(Server* s){
                                     char mensaje[100];
                                     sprintf(mensaje, "Se ha relizado la reserva %i.", (*r).id_reserva_hotel);
                                     logInicioSesion(mensaje); 
-                            }}
+                            }
+                                free(lista);
+                                lista = NULL;
+                            }
                             else{
                                 s->Enviar("No hay habitaciones disponibles para las fechas seleccionadas");
                                 s->Recibir();}
